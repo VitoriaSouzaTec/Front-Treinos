@@ -1,99 +1,191 @@
-"use client";
-
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { redirect } from "next/navigation";
 import { authClient } from "@/app/_lib/auth-client";
-import { Navbar } from "@/components/navbar";
-import { ConsistencyGrid } from "@/components/consistency-grid";
-import { WorkoutCard } from "@/components/workout-card";
+import { headers } from "next/headers";
+import { getHomeData } from "./_lib/api/fetch-generated";
+import dayjs from "dayjs";
+import Image from "next/image";
+import Link from "next/link";
+import { Flame } from "lucide-react";
+import { BottomNav } from "./_components/bottom-nav";
+import { ConsistencyTracker } from "./_components/consistency-tracker";
+import { WorkoutDayCard } from "./_components/workout-day-card";
 
-import { GetHomeDate200TodayWorkoutDay } from "@/app/_lib/api/fetch-generated"; 
+export default async function Home() {
+  const session = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
 
-export default function Home() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  if (!session?.data?.user) {
+    redirect("/auth");
+  }
 
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/auth");
-    }
-  }, [session, isPending, router]);
+  const today = dayjs();
+  const homeData = await getHomeData(today.format("YYYY-MM-DD"), {
+    headers: await headers(),
+  });
 
-  if (isPending) {
+  // If unauthorized, go to auth
+  if (homeData.status === 401) {
+    redirect("/auth");
+  }
+
+  // Handle "No active workout plan" (404)
+  if (homeData.status === 404) {
+    const userName = session.data.user.name?.split(" ")[0] ?? "";
     return (
-      <div className="flex h-screen items-center justify-center bg-black text-white">
-        Carregando...
+      <div className="flex min-h-svh flex-col bg-background pb-24">
+        <div className="relative flex h-[296px] shrink-0 flex-col items-start justify-between overflow-hidden rounded-b-[20px] px-5 pb-10 pt-5">
+          <div className="absolute inset-0" aria-hidden="true">
+            <Image
+              src="/login-bg.png"
+              alt=""
+              fill
+              className="object-cover"
+              priority
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "linear-gradient(243deg, rgba(0,0,0,0) 34%, rgb(0,0,0) 100%)",
+              }}
+            />
+          </div>
+          <p className="relative text-[22px] uppercase leading-[1.15] text-background font-anton">
+            Fit.ai
+          </p>
+          <div className="relative flex w-full items-end justify-between">
+            <div className="flex flex-col gap-1.5">
+              <h1 className="font-heading text-2xl font-semibold leading-[1.05] text-background">
+                Olá, {userName}
+              </h1>
+              <p className="font-heading text-sm leading-[1.15] text-background/70">
+                Você ainda não tem um plano de treino ativo.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center p-10 text-center">
+          <p className="text-muted-foreground">
+            Bora criar seu primeiro plano de treino para começar a acompanhar sua evolução!
+          </p>
+          <button className="mt-6 rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground">
+            Criar meu primeiro treino
+          </button>
+        </div>
+        <BottomNav />
       </div>
     );
   }
 
-  const firstName = session?.user?.name?.split(" ")[0] || "";
- 
+  // If other error (500), we can show a generic error or just redirect
+  if (homeData.status !== 200) {
+    throw new Error("Erro ao carregar dados do home");
+  }
+
+  const { todayWorkoutDay, workoutStreak, consistencyByDay } = homeData.data;
+  const userName = session.data.user.name?.split(" ")[0] ?? "";
 
   return (
-    <div className="flex min-h-screen w-full justify-center bg-zinc-950">
-      <div className="relative flex min-h-screen w-full max-w-md flex-col bg-white font-sans shadow-2xl pb-24 overflow-x-hidden">
-        
-        {/* Hero Section */}
-        <div className="relative h-72 w-full overflow-hidden rounded-b-[2rem]">
+    <div className="flex min-h-svh flex-col bg-background pb-24">
+      <div className="relative flex h-[296px] shrink-0 flex-col items-start justify-between overflow-hidden rounded-b-[20px] px-5 pb-10 pt-5">
+        <div className="absolute inset-0" aria-hidden="true">
           <Image
-            src="/login-bg.png" 
-            alt="Hero background"
+            src="/home-banner.jpg"
+            alt=""
             fill
-            className="object-cover object-top"
+            className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/30" />
-          <div className="absolute top-6 left-6">
-            <span className="text-white font-black tracking-tighter text-xl">FIT.AI</span>
-          </div>
-          <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
-            <div>
-              <h1 className="text-[28px] font-bold text-white tracking-tight leading-none mb-1 capitalize">
-                Olá, {firstName}
-              </h1>
-              <p className="text-sm text-zinc-300 font-medium">Bora treinar hoje?</p>
-            </div>
-            <button className="rounded-full bg-[#3B54FF] hover:bg-blue-700 transition px-6 py-2.5 text-sm font-bold text-white shadow-lg">
-              Bora!
-            </button>
-          </div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(243deg, rgba(0,0,0,0) 34%, rgb(0,0,0) 100%)",
+            }}
+          />
         </div>
 
-        {/* Main Content */}
-        <main className="flex flex-col px-6 pt-8 gap-8">
-          
-          {/* Consistência */}
-          <section className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[18px] font-bold text-zinc-900 tracking-tight">Consistência</h2>
-              <button className="text-xs font-semibold text-[#3B54FF] hover:underline">Ver histórico</button>
-            </div>
-            <div className="flex items-stretch gap-3 w-full">
-              <ConsistencyGrid />
-              {/* Streak */}
-              <div className="flex items-center justify-center gap-2 rounded-2xl bg-[#FFF5EE] px-4 py-4 min-w-[80px]">
-                <span className="text-2xl">🔥</span>
-                <span className="text-xl font-bold text-zinc-900">15</span>
-              </div>
-            </div>
-          </section>
+        <p
+          className="relative text-[22px] uppercase leading-[1.15] text-background"
+          style={{ fontFamily: "var(--font-anton)" }}
+        >
+          Fit.ai
+        </p>
 
-          {/* Treino de Hoje */}
-          <section className="flex flex-col gap-4 w-full">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[18px] font-bold text-zinc-900 tracking-tight">Treino de Hoje</h2>
-              <button className="text-xs font-semibold text-[#3B54FF] hover:underline">Ver treinos</button>
-            </div>
-            
-            <WorkoutCard workout={null}/>
-          </section>
-
-        </main>
-
-        <Navbar />
+        <div className="relative flex w-full items-end justify-between">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="font-heading text-2xl font-semibold leading-[1.05] text-background">
+              Olá, {userName}
+            </h1>
+            <p className="font-heading text-sm leading-[1.15] text-background/70">
+              Bora treinar hoje?
+            </p>
+          </div>
+          <div className="rounded-full bg-primary px-4 py-2">
+            <span className="font-heading text-sm font-semibold text-primary-foreground">
+              Bora!
+            </span>
+          </div>
+        </div>
       </div>
+
+      <div className="flex flex-col gap-3 px-5 pt-5">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg font-semibold text-foreground">
+            Consistência
+          </h2>
+          <button className="font-heading text-xs text-primary">
+            Ver histórico
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex-1 rounded-xl border border-border p-5">
+            <ConsistencyTracker
+              consistencyByDay={consistencyByDay}
+              today={today}
+            />
+          </div>
+          <div className="flex items-center gap-2 self-stretch rounded-xl bg-streak px-5 py-2">
+            <Flame className="size-5 text-streak-foreground" />
+            <span className="font-heading text-base font-semibold text-foreground">
+              {workoutStreak}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {todayWorkoutDay && (
+        <div className="flex flex-col gap-3 p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold text-foreground">
+              Treino de Hoje
+            </h2>
+            <button className="font-heading text-xs text-primary">
+              Ver treinos
+            </button>
+          </div>
+
+          <Link
+            href={`/workout-plans/${todayWorkoutDay.workoutPlanId}/days/${todayWorkoutDay.id}`}
+          >
+            <WorkoutDayCard
+              name={todayWorkoutDay.name}
+              weekDay={todayWorkoutDay.weekDay}
+              estimatedDurationInSeconds={
+                todayWorkoutDay.estimatedDurationInSeconds
+              }
+              exercisesCount={todayWorkoutDay.exercisesCount}
+              coverImageUrl={todayWorkoutDay.coverImageUrl}
+            />
+          </Link>
+        </div>
+      )}
+
+      <BottomNav />
     </div>
   );
 }
