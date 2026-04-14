@@ -2,7 +2,9 @@ export const customFetch = async <T>(
   url: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  const response = await fetch(`${baseUrl}${url}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
