@@ -3,7 +3,7 @@ import { defineConfig } from "orval";
 
 export default defineConfig({
   treinos: {
-    input: `${process.env.NEXT_PUBLIC_API_URL}/swagger.json`,
+    input: "./app/_lib/api/swagger.json",
     output: {
       target: "./app/_lib/api/fetch-generated/index.ts",
       client: "fetch",
