@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { authClient } from "@/app/_lib/auth-client";
 import { headers } from "next/headers";
-import { getHomeData } from "./_lib/api/fetch-generated";
+import { getHomeDate} from "./_lib/api/fetch-generated";
 import dayjs from "dayjs";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,7 +22,7 @@ export default async function Home() {
   }
 
   const today = dayjs();
-  const homeData = await getHomeData(today.format("YYYY-MM-DD"), {
+  const homeData = await getHomeDate(today.format("YYYY-MM-DD"), {
     headers: await headers(),
   });
 

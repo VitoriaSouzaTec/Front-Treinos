@@ -7,7 +7,7 @@ import {
   UserRound,
 } from "lucide-react";
 import dayjs from "dayjs";
-import { getHomeData } from "@/app/_lib/api/fetch-generated";
+import { getHomeDate } from "@/app/_lib/api/fetch-generated";
 import { cn } from "@/lib/utils";
 
 
@@ -17,7 +17,7 @@ interface BottomNavProps {
 
 export async function BottomNav({ activePage = "home" }: BottomNavProps) {
   const today = dayjs();
-  const homeData = await getHomeData(today.format("YYYY-MM-DD"));
+  const homeData = await getHomeDate(today.format("YYYY-MM-DD"));
 
   const calendarHref =
     homeData.status === 200 && homeData.data.todayWorkoutDay

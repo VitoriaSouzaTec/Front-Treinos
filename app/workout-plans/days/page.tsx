@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { authClient } from "@/app/_lib/auth-client";
 import { headers } from "next/headers";
-import { getWorkoutDay } from "@/app/_lib/api/fetch-generated";
+import { getWorkoutPlansIdDaysDayId } from "@/app/_lib/api/fetch-generated";
 import Image from "next/image";
 import { Calendar, Timer, Dumbbell, CircleHelp, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ export default async function WorkoutDayPage({
   if (!session.data?.user) redirect("/auth");
 
   const { id: workoutPlanId, dayId } = await params;
-  const workoutDayData = await getWorkoutDay(workoutPlanId, dayId);
+  const workoutDayData = await getWorkoutPlansIdDaysDayId(workoutPlanId, dayId);
 
   if (workoutDayData.status !== 200) redirect("/");
 

@@ -2,15 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import {
-  startWorkoutSession,
-  updateWorkoutSession,
+  postWorkoutPlansIdDaysDayIdSessions,
+  patchWorkoutPlansIdDaysDayIdSessionsSessionId,
 } from "@/app/_lib/api/fetch-generated";
 
 export async function startWorkoutAction(
   workoutPlanId: string,
   workoutDayId: string,
 ) {
-  await startWorkoutSession(workoutPlanId, workoutDayId);
+  await postWorkoutPlansIdDaysDayIdSessions(workoutPlanId, workoutDayId);
   revalidatePath(`/workout-plans/${workoutPlanId}/days/${workoutDayId}`);
 }
 
@@ -19,7 +19,7 @@ export async function completeWorkoutAction(
   workoutDayId: string,
   sessionId: string,
 ) {
-  await updateWorkoutSession(workoutPlanId, workoutDayId, sessionId, {
+  await patchWorkoutPlansIdDaysDayIdSessionsSessionId(workoutPlanId, workoutDayId, sessionId, {
     completedAt: new Date().toISOString(),
   });
   revalidatePath(`/workout-plans/${workoutPlanId}/days/${workoutDayId}`);

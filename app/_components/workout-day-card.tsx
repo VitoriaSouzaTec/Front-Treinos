@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Calendar, Timer, Dumbbell } from "lucide-react";
-import type { GetHomeData200TodayWorkoutDayWeekDay } from "@/app/_lib/api/fetch-generated";
+
 
 const WEEKDAY_LABELS: Record<string, string> = {
   MONDAY: "SEGUNDA",
@@ -12,13 +12,17 @@ const WEEKDAY_LABELS: Record<string, string> = {
   SUNDAY: "DOMINGO",
 };
 
+
+
 interface WorkoutDayCardProps {
   name: string;
-  weekDay: GetHomeData200TodayWorkoutDayWeekDay;
+  weekDay: string;
   estimatedDurationInSeconds: number;
   exercisesCount: number;
   coverImageUrl?: string;
 }
+
+
 
 export function WorkoutDayCard({
   name,
