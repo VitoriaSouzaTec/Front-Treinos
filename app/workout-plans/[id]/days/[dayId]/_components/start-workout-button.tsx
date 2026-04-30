@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { startWorkoutAction } from "../[daysId]/_actions";
+import { startWorkoutAction } from "../_actions";
 
 interface StartWorkoutButtonProps {
   workoutPlanId: string;

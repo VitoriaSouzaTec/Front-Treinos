@@ -71,9 +71,9 @@ export default async function Home() {
           <p className="text-muted-foreground">
             Bora criar seu primeiro plano de treino para começar a acompanhar sua evolução!
           </p>
-          <button className="mt-6 rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground">
+          <Link href="/ai" className="mt-6 rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 active:scale-95 transition-transform">
             Criar meu primeiro treino
-          </button>
+          </Link>
         </div>
         <BottomNav />
       </div>
@@ -121,14 +121,19 @@ export default async function Home() {
               Olá, {userName}
             </h1>
             <p className="font-heading text-sm leading-[1.15] text-background/70">
-              Bora treinar hoje?
+              {todayWorkoutDay ? "Bora treinar hoje?" : "Dia de descanso!"}
             </p>
           </div>
-          <div className="rounded-full bg-primary px-4 py-2">
-            <span className="font-heading text-sm font-semibold text-primary-foreground">
-              Bora!
-            </span>
-          </div>
+          {todayWorkoutDay && (
+            <Link
+              href={`/workout-plans/${todayWorkoutDay.workoutPlanId}/days/${todayWorkoutDay.id}`}
+              className="rounded-full bg-primary px-4 py-2"
+            >
+              <span className="font-heading text-sm font-semibold text-primary-foreground">
+                Bora!
+              </span>
+            </Link>
+          )}
         </div>
       </div>
 

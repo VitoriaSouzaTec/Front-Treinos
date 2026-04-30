@@ -44,7 +44,9 @@ export default async function WorkoutDayPage({
   if (!session.data?.user) redirect("/auth");
 
   const { id: workoutPlanId, dayId } = await params;
-  const workoutDayData = await getWorkoutPlansIdDaysDayId(workoutPlanId, dayId);
+  const workoutDayData = await getWorkoutPlansIdDaysDayId(workoutPlanId, dayId, {
+    headers: await headers(),
+  });
 
   if (workoutDayData.status !== 200) redirect("/");
 
