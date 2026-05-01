@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import {
   House,
   Calendar,
@@ -17,7 +18,9 @@ interface BottomNavProps {
 
 export async function BottomNav({ activePage = "home" }: BottomNavProps) {
   const today = dayjs();
-  const homeData = await getHomeDate(today.format("YYYY-MM-DD"));
+  const homeData = await getHomeDate(today.format("YYYY-MM-DD"), {
+    headers: await headers(),
+  });
 
   const calendarHref =
     homeData.status === 200 && homeData.data.todayWorkoutDay

@@ -5,9 +5,9 @@ import { getStats } from "@/app/_lib/api/fetch-generated";
 import dayjs from "dayjs";
 import { CircleCheck, CirclePercent, Hourglass } from "lucide-react";
 import { BottomNav } from "@/app/_components/bottom-nav";
-import { StreakBanner } from "./streak-banner";
-import { StatsHeatmap } from "./stats-heatmap";
-import { StatCard } from "./stat-card";
+import { StreakBanner } from "@/app/_components/stats/streak-banner";
+import { StatsHeatmap } from "@/app/_components/stats/stats-heatmap";
+import { StatCard } from "@/app/_components/stats/stat-card";
 
 function formatTotalTime(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
@@ -28,7 +28,9 @@ export default async function StatsPage() {
   const from = today.subtract(2, "month").startOf("month").format("YYYY-MM-DD");
   const to = today.endOf("month").format("YYYY-MM-DD");
 
-  const statsResponse = await getStats({ from, to });
+  const statsResponse = await getStats({ from, to }, {
+    headers: await headers(),
+  });
 
   if (statsResponse.status !== 200) {
     throw new Error("Failed to fetch stats");
