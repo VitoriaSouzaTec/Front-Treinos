@@ -62,7 +62,7 @@ export const customFetch = async <T>(
   const requestHeaders = await getHeaders(options.headers);
 
   // Re-construct the options to be a clean plain object for fetch compatibility
-  const { headers: _origHeaders, ...restOptions } = options;
+  const { ...restOptions } = options;
   
   const requestInit: RequestInit = {
     ...restOptions,
@@ -78,5 +78,5 @@ export const customFetch = async <T>(
     status: response.status, 
     data, 
     headers: response.headers 
-  } as any;
+  } as T;
 };
